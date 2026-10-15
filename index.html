@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F2F2F7">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>学习教练</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+  :root{
+    --bg:#F2F2F7;
+    --card:#FFFFFF;
+    --fill:#F2F2F7;
+    --sep:#E5E5EA;
+    --label:#1C1C1E;
+    --label2:#3C3C43;
+    --label3:#8E8E93;
+    --blue:#007AFF;
+    --blue-dark:#0062CC;
+    --green:#34C759;
+    --green-dark:#248A3D;
+    --red:#FF3B30;
+    --red-dark:#D70015;
+    --radius:20px;
+  }
+
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",
+                "PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--label);
+    line-height:1.55;
+    letter-spacing:-0.01em;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    min-height:100vh;
+  }
+  .app{max-width:720px;margin:0 auto;padding:40px 20px 100px}
+
+  /* ---------- 顶栏 ---------- */
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:26px}
+  h1{font-size:34px;font-weight:700;letter-spacing:-0.022em;line-height:1.15}
+  .goal{color:var(--label3);font-size:15px;margin-top:5px}
+  .streak{
+    display:flex;align-items:baseline;gap:6px;white-space:nowrap;flex:none;
+    background:#fff;padding:9px 18px;border-radius:999px;font-size:14px;color:var(--label2);
+    box-shadow:0 1px 2px rgba(0,0,0,.05), 0 6px 18px rgba(0,0,0,.055);
+  }
+  .streak b{font-size:20px;color:var(--label);font-weight:700;letter-spacing:-0.02em}
+
+  /* ---------- 返回 ---------- */
+  .back{
+    appearance:none;border:0;background:none;cursor:pointer;font-family:inherit;
+    color:var(--blue);font-size:17px;font-weight:500;letter-spacing:-0.015em;
+    padding:6px 4px;margin-bottom:14px;display:inline-flex;align-items:center;gap:3px;
+    transition:opacity .15s;
+  }
+  .back:hover{opacity:.6}
+  .back .chev{font-size:22px;line-height:1;margin-top:-2px}
+
+  /* ---------- 卡片 ---------- */
+  .card{
+    background:var(--card);border-radius:var(--radius);
+    padding:22px;margin-bottom:16px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04), 0 10px 30px rgba(0,0,0,.055);
+  }
+  .card h2{
+    font-size:12.5px;color:var(--label3);font-weight:600;
+    letter-spacing:.6px;margin-bottom:14px;text-transform:uppercase;
+  }
+  .mini{color:var(--label3);font-size:13.5px;margin-top:9px;line-height:1.6}
+
+  /* ---------- 按钮 ---------- */
+  .btn{
+    appearance:none;border:0;cursor:pointer;font-family:inherit;
+    padding:12px 26px;border-radius:999px;font-size:15px;font-weight:600;
+    letter-spacing:-0.01em;transition:background .18s, transform .12s, box-shadow .18s;
+    white-space:nowrap;
+  }
+  .btn:active:not(:disabled){transform:scale(.97)}
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 16px rgba(0,122,255,.28)}
+  .btn-primary:hover:not(:disabled){background:var(--blue-dark)}
+  .btn-pill{background:rgba(0,122,255,.1);color:var(--blue);padding:9px 20px;font-size:14px}
+  .btn-pill:hover:not(:disabled){background:rgba(0,122,255,.17)}
+  .btn-ghost{background:var(--fill);color:var(--blue);padding:11px 22px;font-size:14px}
+  .btn-ghost:hover:not(:disabled){background:#E8E8ED}
+  .btn:disabled{opacity:.42;cursor:not-allowed;transform:none!important}
+  .btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+
+  /* ---------- 输入 ---------- */
+  textarea,input[type=text]{
+    width:100%;background:var(--fill);border:1px solid transparent;border-radius:12px;
+    color:var(--label);padding:13px 15px;font-size:15px;font-family:inherit;
+    line-height:1.55;outline:none;transition:background .18s,box-shadow .18s,border-color .18s;
+  }
+  textarea:focus,input[type=text]:focus{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3.5px rgba(0,122,255,.13)}
+  textarea{min-height:82px;resize:vertical;margin-top:10px}
+  input[type=text]{margin-top:10px}
+  .field-label{font-size:14px;color:var(--label2);font-weight:500;margin-top:18px}
+
+  /* ---------- 选照片（自带按钮太丑，自己做一个） ---------- */
+  .filepick{display:flex;align-items:center;gap:12px;margin-top:11px;flex-wrap:wrap}
+  .pickbtn{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--fill);color:var(--blue);
+    padding:10px 19px;font-size:13.5px;border-radius:999px;
+  }
+  .pickbtn:hover:not(:disabled){background:#E8E8ED}
+  .pickbtn .ico{font-size:15px;line-height:1}
+  .filename{font-size:12.5px;color:var(--label3);max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .thumb{width:52px;height:52px;object-fit:cover;border-radius:12px;flex:none;box-shadow:0 1px 4px rgba(0,0,0,.14)}
+  .warn{font-size:12.5px;color:var(--red);font-weight:600}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  .pickbtn.shake{animation:shake .42s;background:rgba(255,59,48,.1);color:var(--red)}
+  ::placeholder{color:#AEAEB2}
+
+  /* ---------- 进度 ---------- */
+  .bar{height:9px;border-radius:999px;background:#E5E5EA;overflow:hidden;margin-top:12px}
+  .bar>i{display:block;height:100%;border-radius:999px;
+    background:linear-gradient(90deg,#0A84FF,#34C759);
+    transition:width .65s cubic-bezier(.32,.72,0,1)}
+  .pnum{font-size:15px;color:var(--label3)}
+  .pnum b{color:var(--label);font-size:22px;font-weight:700;letter-spacing:-0.02em}
+
+  /* ---------- 任务行 ---------- */
+  .task{
+    display:flex;align-items:center;gap:14px;padding:15px 0;
+    border-bottom:1px solid var(--sep);cursor:pointer;
+    transition:opacity .15s;
+  }
+  .task:last-child{border-bottom:0;padding-bottom:2px}
+  .task:hover{opacity:.62}
+  .tick{
+    width:25px;height:25px;flex:none;border-radius:50%;
+    border:1.5px solid #C7C7CC;background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:transparent;transition:all .25s cubic-bezier(.32,.72,0,1);
+  }
+  .task.done .tick{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+  .ti{flex:1;min-width:0}
+  .ti-title{font-size:16px;font-weight:600;letter-spacing:-0.015em}
+  .task.done .ti-title{color:var(--label3)}
+  .ti-min{font-size:13px;color:var(--label3);margin-top:3px}
+  .badge{font-size:12px;padding:4px 11px;border-radius:999px;white-space:nowrap;font-weight:500}
+  .badge.ok{background:rgba(52,199,89,.13);color:var(--green-dark)}
+  .badge.no{background:rgba(255,59,48,.1);color:var(--red-dark)}
+  /* 掌握标记：做完了照样打勾，没掌握是另外一件事 —— 所以颜色跟 .no 分开 */
+  .badge.red{background:rgba(255,59,48,.1);color:var(--red-dark)}
+  .badge.amber{background:rgba(255,149,0,.15);color:#A05A00}
+
+  /* 今天的实时评分 */
+  .daynum{display:flex;align-items:baseline;gap:9px}
+  .daynum .num{font-size:44px;font-weight:700;letter-spacing:-0.04em;line-height:1;
+               font-variant-numeric:tabular-nums}
+  .daynum .unit{font-size:14px;color:var(--label3);font-weight:500}
+  .daynum .plus{font-size:14px;color:var(--green-dark);font-weight:600}
+  .dayparts{font-size:12.5px;color:var(--label3);margin-top:11px;line-height:1.7}
+  .dayparts b{color:var(--label2);font-weight:600}
+  .reflnote{font-size:13px;color:var(--label2);margin-top:10px;line-height:1.6}
+  .chev-r{color:#C7C7CC;font-size:19px;flex:none;margin-left:-6px}
+
+  /* ---------- 详情页 ---------- */
+  .tag{
+    display:inline-block;font-size:12px;font-weight:600;padding:4px 12px;border-radius:999px;
+    background:rgba(0,122,255,.1);color:var(--blue);margin-bottom:11px;letter-spacing:0;
+  }
+  .dtitle{font-size:23px;font-weight:700;letter-spacing:-0.022em;line-height:1.3;margin-bottom:6px}
+  .status-line{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:15px;border-top:1px solid var(--sep)}
+  .status-line .dot{width:8px;height:8px;border-radius:50%;flex:none}
+
+  .q{margin:13px 0;padding:16px;background:var(--fill);border-radius:14px}
+  .q .qt{font-weight:600;font-size:15px;letter-spacing:-0.012em}
+  .qhead{display:flex;align-items:flex-start;gap:9px;margin-bottom:10px}
+  .kind{
+    flex:none;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;
+    margin-top:1px;letter-spacing:0;
+  }
+  .kind.ask{background:rgba(0,122,255,.12);color:var(--blue)}
+  .kind.talk{background:rgba(255,149,0,.14);color:#9A5B00}
+  .q textarea,.q input[type=text]{margin-top:0;background:#fff}
+  .q textarea{min-height:66px}
+
+  .verdict{border-radius:var(--radius);padding:24px;margin-bottom:16px}
+  .scoreline{display:flex;align-items:baseline;gap:9px;margin-top:14px}
+  .scoreline .num{font-size:40px;font-weight:700;letter-spacing:-0.035em;line-height:1}
+  .scoreline .unit{font-size:14px;color:var(--label3);font-weight:500}
+  .verdict.ok .scoreline .num{color:var(--green-dark)}
+  .verdict.no .scoreline .num{color:var(--red-dark)}
+  .parts{font-size:13.5px;color:var(--label3);margin-top:7px}
+  .coach{
+    margin-top:16px;padding:15px 17px;border-radius:14px;
+    background:rgba(255,255,255,.75);font-size:14.5px;line-height:1.7;
+    color:var(--label2);letter-spacing:-0.008em;
+  }
+  .verdict.ok{background:rgba(52,199,89,.09);box-shadow:inset 0 0 0 1px rgba(52,199,89,.22)}
+  .verdict.no{background:rgba(255,59,48,.07);box-shadow:inset 0 0 0 1px rgba(255,59,48,.2)}
+  .verdict .big{font-size:21px;font-weight:700;letter-spacing:-0.02em}
+  .verdict.ok .big{color:var(--green-dark)} .verdict.no .big{color:var(--red-dark)}
+  .verdict .mini{color:var(--label2)}
+
+  /* ---------- 记录 ---------- */
+  .rec{display:flex;gap:12px;align-items:center;padding:11px 13px;border-radius:13px;background:var(--fill);margin-bottom:9px}
+  .rec:last-child{margin-bottom:0}
+  .rec.tall{align-items:flex-start}
+  .rec.tall .dot{margin-top:7px}
+  .rec .coach{margin-top:9px;padding:12px 14px;font-size:13.5px;background:#fff;border-radius:11px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .recright{display:flex;flex-direction:column;gap:8px;flex:none}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .dot.ok{background:var(--green)} .dot.no{background:var(--red)} .dot.gray{background:#C7C7CC}
+  .rec .d{font-size:12.5px;color:var(--label3);flex:none;font-variant-numeric:tabular-nums}
+  .rec .t{font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rec img{width:42px;height:42px;object-fit:cover;border-radius:10px;flex:none;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .rec .note{font-size:12.5px;color:var(--label3);margin-top:2px;white-space:normal;line-height:1.5}
+
+  .banner{
+    padding:17px 19px;border-radius:16px;font-size:14px;margin-bottom:16px;
+    background:rgba(255,149,0,.1);color:#8A5200;
+    box-shadow:inset 0 0 0 1px rgba(255,149,0,.24);
+  }
+  .banner .bh{font-weight:700;font-size:15px;margin-bottom:6px}
+  .banner a{color:var(--blue);text-decoration:none;font-weight:600}
+  .banner a:hover{text-decoration:underline}
+  .keyrow{display:flex;gap:9px;margin-top:12px;align-items:center}
+  .keyrow input{flex:1;min-width:0;background:rgba(255,255,255,.85);margin-top:0}
+  .keyrow .btn{padding:12px 22px;flex:none}
+  .keymsg{font-size:13px;margin-top:9px;min-height:19px}
+  .keymsg.ok{color:var(--green-dark);font-weight:600}
+  .keymsg.bad{color:var(--red-dark);font-weight:600}
+  .empty{color:var(--label3);font-size:14px;padding:6px 0}
+
+  /* ---------- 今天 · 管家 ---------- */
+  .butler .coach{margin-top:0;background:rgba(0,122,255,.07);
+    box-shadow:inset 0 0 0 1px rgba(0,122,255,.14);color:var(--label2)}
+  .habit-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .habit-target{font-size:13px;color:var(--label3);font-weight:600;white-space:nowrap}
+  .sleepform{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input[type=time]{
+    appearance:none;background:var(--fill);border:1px solid transparent;border-radius:12px;
+    color:var(--label);padding:12px 14px;font-size:16px;font-family:inherit;outline:none;
+    font-variant-numeric:tabular-nums;letter-spacing:0;
+    transition:background .18s,box-shadow .18s,border-color .18s;
+  }
+  input[type=time]:focus{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3.5px rgba(0,122,255,.13)}
+  .sleepform .til{font-size:13px;color:var(--label3)}
+  .sleephint{font-size:14px;color:var(--label2);margin-top:12px;font-weight:600;min-height:21px}
+  .sleephint.ok{color:var(--green-dark)} .sleephint.mid{color:#9A5B00} .sleephint.bad{color:var(--red-dark)}
+  .legend i.ok{background:var(--green)} .legend i.mid{background:#FF9500}
+  .legend i.bad{background:var(--red)} .legend i.none{background:#E5E5EA}
+  .tick.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  select,input[type=date]{
+    appearance:none;background:var(--fill);border:1px solid transparent;border-radius:12px;
+    color:var(--label);padding:12px 14px;font-size:15px;font-family:inherit;outline:none;
+    transition:background .18s,box-shadow .18s,border-color .18s;
+  }
+  select:focus,input[type=date]:focus{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3.5px rgba(0,122,255,.13)}
+  input[type=number]{
+    appearance:none;background:var(--fill);border:1px solid transparent;border-radius:12px;
+    color:var(--label);padding:12px 10px;font-size:16px;font-family:inherit;outline:none;
+    font-variant-numeric:tabular-nums;text-align:center;width:74px;flex:none;letter-spacing:0;
+    transition:background .18s,box-shadow .18s,border-color .18s;
+  }
+  input[type=number]:focus{background:#fff;border-color:var(--blue);box-shadow:0 0 0 3.5px rgba(0,122,255,.13)}
+  .q .stepsbox{min-height:88px;background:#fff;margin-top:0}
+  .sleepchart{margin-top:14px;padding-top:15px;border-top:1px solid var(--sep)}
+  .sleepbars{display:flex;align-items:flex-end;gap:4px;height:56px}
+  .sbcol{flex:1;display:flex;align-items:flex-end;height:100%;min-width:0}
+  .sb{width:100%;border-radius:5px;background:#D1D1D6;transition:height .45s cubic-bezier(.32,.72,0,1)}
+  .sb.ok{background:var(--green)} .sb.mid{background:#FF9500} .sb.bad{background:var(--red)}
+  .sb.none{background:#E5E5EA;border-radius:3px}
+  .legend{display:flex;gap:14px;margin-top:10px;font-size:12px;color:var(--label3);flex-wrap:wrap}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+  .stat{font-size:13.5px;color:var(--label2);margin-top:11px;font-weight:500;line-height:1.6}
+  .task .ti-step{font-size:12.5px;color:var(--blue);margin-top:4px;line-height:1.45}
+  .due{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;
+    background:var(--fill);color:var(--label3);white-space:nowrap;flex:none}
+  .due.overdue{background:rgba(255,59,48,.11);color:var(--red-dark)}
+  .step{display:flex;gap:11px;align-items:flex-start;padding:11px 0;
+    border-bottom:1px solid var(--sep);cursor:pointer;transition:opacity .15s}
+  .step:last-of-type{border-bottom:0;padding-bottom:2px}
+  .step:hover{opacity:.7}
+  .stepbox{width:22px;height:22px;flex:none;border-radius:50%;border:1.5px solid #C7C7CC;
+    background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;
+    color:transparent;transition:all .22s cubic-bezier(.32,.72,0,1)}
+  .step.done .stepbox{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+  .step .steptext{font-size:15px;line-height:1.5;flex:1;min-width:0}
+  .step.done .steptext{color:var(--label3);text-decoration:line-through}
+  .step.first .steptext{font-weight:600}
+  .stepfirst{font-size:11.5px;font-weight:600;color:var(--blue);margin-bottom:4px;letter-spacing:0}
+  .habitbar{display:flex;align-items:center;gap:12px;margin-top:14px}
+
+  .spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.14);
+    border-top-color:var(--blue);border-radius:50%;animation:sp .7s linear infinite;
+    vertical-align:-2px;margin-right:7px}
+  .btn-primary .spinner{border-color:rgba(255,255,255,.4);border-top-color:#fff}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hidden{display:none!important}
+
+  /* ---------- 分段控件（今天 / 日历 / 清单 / 总结） ---------- */
+  .seg{display:flex;gap:2px;background:#E3E3E8;padding:3px;border-radius:11px;margin-bottom:24px}
+  .seg a{
+    flex:1;text-align:center;text-decoration:none;color:var(--label2);
+    font-size:13.5px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;
+    padding:8px 4px;border-radius:8.5px;transition:background .2s,color .2s,box-shadow .2s;
+  }
+  .seg a:hover{color:var(--label)}
+  .seg a.on{background:#fff;color:var(--label);box-shadow:0 1px 3px rgba(0,0,0,.11)}
+  .seg a.on:hover{color:var(--label)}
+
+  /* ---------- 小节标题（生活 / 坏习惯） ---------- */
+  .sechead{
+    font-size:12.5px;color:var(--label3);font-weight:600;letter-spacing:.6px;
+    text-transform:uppercase;margin:6px 4px 10px;
+  }
+  .eyebrow{
+    font-size:12.5px;color:var(--label3);font-weight:600;letter-spacing:.6px;
+    text-transform:uppercase;margin:0 0 10px;
+  }
+
+  /* ---------- 卡片头：标题在左，按钮在右 ---------- */
+  .cardhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .cardhead h2{margin-bottom:0}
+
+  /* ---------- 本周迷你日历 ---------- */
+  .week{display:flex;gap:6px}
+  .wk{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;
+    padding:9px 0 8px;border-radius:13px;background:var(--fill);cursor:pointer;
+    transition:background .15s;
+  }
+  .wk:hover{background:#E8E8ED}
+  .wk .wd{font-size:11.5px;color:var(--label3);font-weight:500}
+  .wk .wn{font-size:15.5px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
+  .wk.today,.wk.today:hover{background:var(--blue)}
+  .wk.today .wd{color:rgba(255,255,255,.78)}
+  .wk.today .wn{color:#fff}
+
+  /* 日期下面那两个小圆点（蓝 = 要交，红 = 自己标的） */
+  .dots{height:6px;display:flex;gap:3px;align-items:center;justify-content:center}
+  .dots i{width:5px;height:5px;border-radius:50%;display:block}
+  .dots i.due{background:var(--blue)}
+  .dots i.ev{background:var(--red)}
+  .dots i.red{background:var(--red);width:6px;height:6px}
+  .dots i.amber{background:#FF9500;width:6px;height:6px}
+  .wk.today .dots i{background:#fff}
+
+  /* ---------- 月历 ---------- */
+  .calhead{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .calhead .m{font-size:17px;font-weight:700;letter-spacing:-0.02em}
+  .iconbtn{
+    appearance:none;border:0;background:var(--fill);color:var(--blue);cursor:pointer;
+    font-family:inherit;width:34px;height:34px;border-radius:50%;font-size:19px;line-height:1;
+    display:flex;align-items:center;justify-content:center;flex:none;transition:background .18s;
+  }
+  .iconbtn:hover:not(:disabled){background:#E8E8ED}
+  .iconbtn:disabled{opacity:.3;cursor:not-allowed}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:16px}
+  .ch{font-size:11.5px;color:var(--label3);font-weight:600;text-align:center;padding-bottom:3px}
+  .cell{
+    position:relative;aspect-ratio:1/1;border-radius:11px;background:var(--fill);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    font-size:14px;font-variant-numeric:tabular-nums;transition:background .15s;
+  }
+  .cell:hover{background:#E8E8ED}
+  .cell.blank{background:transparent;cursor:default}
+  .cell.blank:hover{background:transparent}
+  .cell.good{background:rgba(52,199,89,.16);color:var(--green-dark);font-weight:600}
+  .cell.today{box-shadow:inset 0 0 0 2px var(--blue)}
+  .cell.sel{background:var(--blue);color:#fff;font-weight:600}
+  .cell .dots{position:absolute;bottom:5px;left:0;right:0}
+  .cell.sel .dots i{background:#fff}
+  .callegend{display:flex;gap:15px;margin-top:15px;font-size:12px;color:var(--label3);flex-wrap:wrap}
+  .callegend span{display:inline-flex;align-items:center}
+  .callegend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:6px;flex:none}
+  .callegend i.due,.callegend i.ev{width:8px;height:8px;border-radius:50%;margin:0 7.5px 0 1.5px}
+  .pickrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+  .pickrow input[type=text]{flex:1;min-width:150px;margin-top:0}
+
+  /* ---------- 总结 ---------- */
+  .sumtext{font-size:14.5px;line-height:1.75;color:var(--label2);letter-spacing:-0.008em;white-space:pre-wrap}
+  .sumtext.empty{color:var(--label3)}
+  .sumwhen{font-size:12.5px;color:var(--label3);margin-top:11px}
+
+  /* ---------- 教练对话 ---------- */
+  /* 他说的话：靠右、蓝底白字。教练说的话复用上面 .coach 那套白底气泡 —— 那本来
+     就是"教练的嘴"（管家那句话、判分理由都用它），别再发明一套配色。 */
+  .thread{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+  .msg{display:flex;max-width:100%}
+  .msg.me{justify-content:flex-end}
+  .bub{font-size:14.5px;line-height:1.65;letter-spacing:-0.008em;white-space:pre-wrap;
+       padding:11px 14px;border-radius:17px;max-width:82%;word-break:break-word}
+  .msg.me .bub{background:var(--blue);color:#fff;border-bottom-right-radius:5px}
+  .msg.coach .bub{background:#fff;color:var(--label);border-bottom-left-radius:5px;
+                  box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .msg.coach .bub.failed{background:#FFF3F2;color:var(--red-dark)}
+  .msg .when{font-size:11.5px;color:var(--label3);align-self:flex-end;margin:0 6px 3px}
+  .thinking{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--label3);padding:3px 4px}
+  .ask{border-top:1px solid var(--sep);margin-top:11px;padding-top:11px}
+  .ask .lbl{font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;
+            color:var(--label3);margin-bottom:5px}
+  .ask .fl{font-size:14.5px;line-height:1.6;color:var(--label);font-weight:600;
+           background:var(--fill);border-radius:11px;padding:10px 12px;white-space:pre-wrap}
+  .ask .note{font-size:12.5px;color:var(--label3);margin-top:8px;line-height:1.5}
+  .askdone{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--green-dark);
+           background:#EDFAF0;border-radius:11px;padding:9px 12px;margin-top:11px}
+  .askgone{font-size:12.5px;color:var(--label3);margin-top:11px}
+  .coachbar{display:flex;align-items:center;justify-content:space-between;gap:10px;
+            font-size:13px;color:var(--label3);margin-bottom:11px}
+  .coachbar b{color:var(--label2);font-variant-numeric:tabular-nums}
+  .ledger{font-size:12.5px;color:var(--label3);font-variant-numeric:tabular-nums;
+          flex:none;white-space:nowrap}
+  .saybox{position:sticky;bottom:0;background:var(--bg);padding-top:10px}
+  .sayrow{display:flex;gap:9px;align-items:flex-end}
+  .sayrow textarea{flex:1;font:inherit;font-size:15px;line-height:1.5;color:var(--label);
+        background:var(--fill);border:0;border-radius:14px;padding:11px 14px;resize:none;
+        max-height:132px;letter-spacing:-0.008em}
+  .sayrow textarea:focus{outline:2px solid var(--blue);outline-offset:-1px;background:#fff}
+  .sayrow .btn{flex:none}
+  .coachnote{font-size:12.5px;color:var(--label3);text-align:center;padding:18px 10px}
+
+  @media (max-width:520px){
+    .app{padding:26px 16px 80px}
+    h1{font-size:29px}
+    .card{padding:19px;border-radius:18px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header id="top">
+    <div>
+      <h1>学习教练</h1>
+      <div class="goal" id="goal">—</div>
+    </div>
+    <div class="streak" id="streakbox">🔥 连续 <b id="streak">0</b> 天</div>
+  </header>
+
+  <nav class="seg hidden" id="seg">
+    <a href="#today" data-v="today">今天</a>
+    <a href="#coach" data-v="coach">教练</a>
+    <a href="#calendar" data-v="calendar">日历</a>
+    <a href="#list" data-v="list">清单</a>
+    <a href="#summary" data-v="summary">总结</a>
+    <a href="#settings" data-v="settings">设置</a>
+  </nav>
+
+  <div id="aiwarn" class="banner hidden">
+    <div class="bh">⚠️ 还没接上 AI</div>
+    <div>去 <a href="https://platform.deepseek.com" target="_blank">platform.deepseek.com</a>
+      注册 → 充值 → 左边点「API keys」→ 创建 → 复制 <b>sk-</b> 开头那一串，粘到下面这个框里：</div>
+    <div class="keyrow">
+      <input type="password" id="keyinput" placeholder="sk-........................" autocomplete="off">
+      <button class="btn btn-primary" id="keysave">保存</button>
+    </div>
+    <div class="keymsg" id="keymsg"></div>
+  </div>
+
+  <!-- ============ 第一步：定制任务 ============ -->
+  <div id="setup" class="hidden">
+    <div class="card">
+      <h2>第一步 · 定制你的任务</h2>
+      <p class="mini" style="margin-top:0">先跟教练把你的情况说清楚，它才会给你定出对的任务。别写空话，写真的。</p>
+
+      <div class="field-label">你的目标是什么？</div>
+      <textarea id="s-goal" placeholder="例如：考研工程心理学，目标是认知神经科学方向的博士"></textarea>
+
+      <div class="field-label">你现在什么情况？</div>
+      <textarea id="s-situation" placeholder="例如：英语专业大二，跨考心理学，零基础，拖延严重，每天真正能学进去的时间不多"></textarea>
+
+      <div class="field-label">每天大概能拿出多少时间？</div>
+      <input type="text" id="s-time" placeholder="例如：平时 1 小时，周末 3 小时">
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-plan">让教练给我定任务</button>
+        <button class="btn btn-ghost" id="btn-manual">我自己先列</button>
+      </div>
+      <div class="mini">教练会列 5–8 项，按类别分好组，每项都带一个「最低限度」——你状态最差那天也能完成的那一版。不满意你可以改。<br>（还没配 AI 的话，点「我自己先列」也能用，只是考核要等配好。）</div>
+      <div class="mini"><b>先把图标装到主屏幕，再录数据。</b>没装的话：Safari 底下中间的「分享」→「添加到主屏幕」，之后都从图标进。Safari 标签页里的存储<b>不会</b>跟着进主屏应用。</div>
+    </div>
+
+    <div id="plan-preview"></div>
+  </div>
+
+  <!-- ============ 今天（首页） ============ -->
+  <div id="view-today" class="hidden"></div>
+
+  <!-- ============ 清单页 ============ -->
+  <div id="view-list" class="hidden">
+    <button class="back" id="back-today"><span class="chev">‹</span> 今天</button>
+    <div class="card">
+      <h2>进度</h2>
+      <div class="pnum"><b id="pdone">0</b> / <span id="ptotal">0</span> 项已完成</div>
+      <div class="bar"><i id="pbar" style="width:0%"></i></div>
+    </div>
+    <div id="groups"></div>
+    <div class="card">
+      <h2>提交记录</h2>
+      <div id="recs"></div>
+    </div>
+  </div>
+
+  <!-- ============ 日历页 ============ -->
+  <div id="view-calendar" class="hidden"></div>
+
+  <!-- ============ 总结页 ============ -->
+  <div id="view-summary" class="hidden"></div>
+
+  <!-- ============ 教练页（跟教练说话的地方）============ -->
+  <div id="view-coach" class="hidden"></div>
+
+  <!-- ============ 任务详情页 ============ -->
+  <div id="view-task" class="hidden"></div>
+
+  <!-- ============ 设置页（手机版独有：备份 / 导入 / 用量 / 安装说明 / 密钥）============ -->
+  <div id="view-settings" class="hidden"></div>
+
+</div>
+<script type="module" src="js/boot.js"></script>
+<script type="module" src="js/ui.js"></script>
+</body>
+</html>
